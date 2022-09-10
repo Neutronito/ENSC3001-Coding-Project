@@ -1,10 +1,11 @@
 # ENSC3001-Coding-Project
+Yay happy fun project for ENSC3001 woohoo
 
 # Virtual Environment
 For testing and running the application use the python virtual environment. Please do not push the venv directory or the pycache.
 It is essential that everyone uses the venv, so that we are all working with the same dependancies, and so that whenever anyone uses a new package, we are all able to know which one it is and can update our venv. 
 
-To create a virtual environment, run this command in the top level directory of the project. This would be in the URC-Inventory-Site directory (which you have cloned):
+To create a virtual environment, run this command in the top level directory of the project. This would be in the ENSC3001-Coding-Project directory (which you have cloned):
 ```shell
 python3 -m venv venv
 ```
