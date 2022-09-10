@@ -15,6 +15,7 @@ def read_user_input():
 #returns an integer array, giving the lengths of the linkages
 def execute_4bar_calculations():
     #How the parameters are taken depends on how the above function is done
+    #also deal with and report negative error checking
     print()
 
 #prints out the results of the calculations
