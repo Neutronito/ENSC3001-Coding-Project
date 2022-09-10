@@ -13,10 +13,6 @@ Whenever you wish to activate the venv, run this command (again, you need to be 
 ```shell
 source venv/bin/activate
 ```
-To run flask in debug mode, run this command (before flask run)
-```shell
-export FLASK_DEBUG=1
-```
 
 You will have to create the venv each time you begin working on a new branch. You will also have to install all of the required packages. This can be done using the requirements.txt file. After activating the venv, simply run this:
 ```shell
