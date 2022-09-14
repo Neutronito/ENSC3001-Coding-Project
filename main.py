@@ -4,10 +4,16 @@
 class Solver:
     #Class constructor which can take in optional arguments (default to 0)
     #This can be used to construct a default class without needing manual inputs later on
-    def __init__(self, arg1=0, arg2=0, arg3=0):
-        self.arg1 = arg1 
-        self.arg2 = arg2
-        self.arg3 = arg3
+    def __init__(self, func=0, x_min=0, x_max=0,
+                    theta2_start=0, theta2_max_rot=0,
+                    theta4_start=0, theta4_max_rot=0):
+        self.func = func    
+        self.x_min = x_min
+        self.x_max = x_max
+        self.theta2_start   = theta2_start
+        self.theta2_max_rot = theta2_max_rot
+        self.theta4_start   = theta4_start
+        self.theta4_max_rot = theta4_max_rot
 
     #reads input from the user to use as parameters
     #function blocks until a valid input is given
@@ -47,4 +53,4 @@ if __name__ == "__main__":
     testSolver = Solver()
     testSolver.solve()
 
-    testSolver.solve(True)  #Manual input
+    # testSolver.solve(True)  #Manual input
