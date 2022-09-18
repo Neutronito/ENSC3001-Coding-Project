@@ -1,3 +1,4 @@
+from cmath import pi
 from sympy.abc import x, y
 import sympy as sym
 import sympy.parsing.sympy_parser as parser
@@ -122,13 +123,29 @@ class Solver:
         #How the parameters are taken depends on how the above function is done
         #also deal with and report negative error checking
         
-        self.find_chebyshev_spacing()
-        self.find_corresponding_y_points()
-        self.linear_mapping_x_to_theta2()
-        self.linear_mapping_y_to_theta4()
-        self.determine_corresponding_angles()
-        self.solve_freudenstein()
-        self.solve_linkage_dimensions()
+        #loop through starting theta 2 angle to start + 360
+        start_angle = self.theta2_start
+        for x in range(0, 360, 5):
+            self.theta2_start = start_angle + math.radians(x)
+            self.find_chebyshev_spacing()
+            self.find_corresponding_y_points()
+            self.linear_mapping_x_to_theta2()
+            self.linear_mapping_y_to_theta4()
+            self.determine_corresponding_angles()
+            self.solve_freudenstein()
+            self.solve_linkage_dimensions()
+
+            #check if all values are positive
+            found_negative = False    
+            for length in self.lengths:
+                if (length < 0):
+                    found_negative = True
+            
+            #This solution has all positive lengths so break
+            if (found_negative is False):
+                break
+        
+        print("We have obtained the final lengths with all positive solutions")            
         return
         
     # Applies Chebyshev spacing formula to determine 3 precision points
@@ -265,7 +282,7 @@ if __name__ == "__main__":
     
 
     testSolver = Solver()
-    testSolver.solve(True)
+    testSolver.solve()
 
 
     
