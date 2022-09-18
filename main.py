@@ -8,6 +8,7 @@ import math
 class Solver:
     #Class constructor which can take in optional arguments (default to 0)
     #This can be used to construct a default class without needing manual inputs later on
+    #Note, all angles are in radians
     def __init__(self, func="2*x", x_min=1, x_max=2,
                     theta2_start=0, theta2_max_rot=0,
                     theta4_start=0, theta4_max_rot=0):
@@ -29,7 +30,28 @@ class Solver:
         #x bounds of the function
         #Up to you to figure out how to store the function, and how to pass it to the
         #next functions
-        print()
+
+        print("This function accepts the following inputs and uses them to calculate the lengths of the appropriate four bar linkage.")
+        print("\n1: \t The function \t\t\t\t\t E.g. 2*x + 3")
+        print("2: \t The lower and upper x boundary \t\t E.g. 1.2 12.5")
+        print("3: \t The rotation of the input link, in degrees \t E.g. 30")
+        print("4: \t The rotation of the output link, in degrees \t E.g. 60")
+        print("\n")
+
+        function_input = input("Enter the function. Please note, you MUST include all multiplications using the * symbol, and do not include y=\n")
+        self.func = parser.parse_expr(function_input)
+
+        function_bounds = input("Enter the lower and upper x boundaries (respectively) as two number seperated by a whitespace\n")
+        split_bounds = function_bounds.split(" ")
+        self.x_min = int(split_bounds[0])
+        self.x_max = int(split_bounds[1])
+
+        input_rotation = input("Enter the rotation of the input link, in degrees\n")
+        self.theta2_max_rot = math.radians(int(input_rotation))
+        
+        output_rotation = input("Enter the rotation of the output link, in degrees\n")
+        self.theta4_max_rot = math.radians(int(output_rotation))        
+
 
     #accepts the function and bounds parameters, executing calculations to determine the corresponding 4bar linkage
     #returns an integer array, giving the lengths of the linkages
@@ -93,7 +115,10 @@ class Solver:
 ##                Main Execution                    #
 #####################################################
 if __name__ == "__main__":
+    
+
     testSolver = Solver()
+    testSolver.read_user_input()
     testSolver.solve()
 
     
