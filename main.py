@@ -122,13 +122,16 @@ class Solver:
     def execute_4bar_calculations(self):
         #How the parameters are taken depends on how the above function is done
         #also deal with and report negative error checking
-        
+
+        #These calculations only need to be done once
+        self.find_chebyshev_spacing()
+        self.find_corresponding_y_points()
+
         #loop through starting theta 2 angle to start + 360
         start_angle = self.theta2_start
         for x in range(0, 360, 5):
             self.theta2_start = start_angle + math.radians(x)
-            self.find_chebyshev_spacing()
-            self.find_corresponding_y_points()
+
             self.linear_mapping_x_to_theta2()
             self.linear_mapping_y_to_theta4()
             self.determine_corresponding_angles()
