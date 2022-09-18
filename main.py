@@ -29,7 +29,7 @@ class Solver:
         self.theta2_vals = [0, 0, 0]
         self.theta4_vals = [0, 0, 0]
         
-        self.fsn_eq = [None, None, None] # Array to store 3 freudenstein equations
+        self.fsn_results = [0, 0, 0] # Array to store 3 freudenstein results, K1, K2 and K3
 
     #reads input from the user to use as parameters
     #function blocks until a valid input is given
@@ -100,6 +100,7 @@ class Solver:
         self.linear_mapping_x_to_theta2()
         self.linear_mapping_y_to_theta4()
         self.determine_corresponding_angles()
+        self.solve_freudenstein()
         return
         
     # Applies Chebyshev spacing formula to determine 3 precision points
@@ -170,6 +171,21 @@ class Solver:
         print("Linearly mapped theta values determined:")
         print("Theta2 values:", self.theta2_vals)
         print("Theta4 values:", self.theta4_vals)
+        print()
+        return
+    
+    def solve_freudenstein(self):
+        a,b,c = sym.symbols('a, b, c')
+        eq1 = sym.Eq(a*math.cos(self.theta2_vals[0]) + b*math.cos(self.theta4_vals[0]) + c, math.cos(self.theta2_vals[0] - self.theta4_vals[0]))
+        eq2 = sym.Eq(a*math.cos(self.theta2_vals[1]) + b*math.cos(self.theta4_vals[1]) + c, math.cos(self.theta2_vals[1] - self.theta4_vals[1]))
+        eq3 = sym.Eq(a*math.cos(self.theta2_vals[2]) + b*math.cos(self.theta4_vals[2]) + c, math.cos(self.theta2_vals[2] - self.theta4_vals[2]))
+        result = sym.solve([eq1, eq2, eq3], (a, b, c))
+        self.fsn_results[0] = result[a]
+        self.fsn_results[1] = result[b]
+        self.fsn_results[2] = result[c]
+        print("Freudenstein calculates K1 as %.3f, K2 as %.3F and K3 as %.3f" % (self.fsn_results[0], self.fsn_results[1], self.fsn_results[2]))
+        print()
+        return
     
     def validate_results(self):
         return
