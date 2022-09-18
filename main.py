@@ -9,7 +9,7 @@ import math
 class Solver:
     #Class constructor which can take in optional arguments (default to 0)
     #This can be used to construct a default class without needing manual inputs later on
-    def __init__(self, func="1 / x**2", x_min=1, x_max=2,
+    def __init__(self, func="x**(-2)", x_min=1, x_max=2,
                     theta2_start=7*math.pi/12, theta2_max_rot=math.pi/3,
                     theta4_start=4*math.pi/3, theta4_max_rot=math.pi/2):
         self.func = parser.parse_expr(func)
@@ -175,7 +175,6 @@ if __name__ == "__main__":
     
 
     testSolver = Solver()
-    testSolver.read_user_input()
     testSolver.solve()
 
     
