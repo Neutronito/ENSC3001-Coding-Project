@@ -29,7 +29,9 @@ class Solver:
         self.theta2_vals = [0, 0, 0]
         self.theta4_vals = [0, 0, 0]
         
-        self.fsn_results = [0, 0, 0] # Array to store 3 freudenstein results, K1, K2 and K3
+        self.fsn_results = [0, 0, 0]     # Array to store 3 freudenstein results, K1, K2 and K3
+        
+        self.lengths = [0, 0, 0, 0]      # Array to store solved linkage dimensions
 
     #reads input from the user to use as parameters
     #function blocks until a valid input is given
@@ -101,6 +103,7 @@ class Solver:
         self.linear_mapping_y_to_theta4()
         self.determine_corresponding_angles()
         self.solve_freudenstein()
+        self.solve_linkage_dimensions()
         return
         
     # Applies Chebyshev spacing formula to determine 3 precision points
@@ -132,7 +135,7 @@ class Solver:
         return
         
     def linear_mapping_x_to_theta2(self):
-        a, b = sym.symbols("a,b")
+        a, b = sym.symbols("a, b")
         angle1 = self.theta2_start
         angle2 = self.theta2_start + self.theta2_max_rot
         
@@ -183,9 +186,27 @@ class Solver:
         self.fsn_results[0] = result[a]
         self.fsn_results[1] = result[b]
         self.fsn_results[2] = result[c]
-        print("Freudenstein calculates K1 as %.3f, K2 as %.3F and K3 as %.3f" % (self.fsn_results[0], self.fsn_results[1], self.fsn_results[2]))
+        print("Freudenstein calculates K1 as %.3f, K2 as %.3F and K3 as %.3f" % tuple(self.fsn_results))
         print()
         return
+    
+    # Solves for the dimensions of all linkages, assuming R1 = 1m
+    def solve_linkage_dimensions(self):
+        r1 = 1                          
+        r4 = r1 / self.fsn_results[0]
+        r2 = r1 / self.fsn_results[1]
+        
+        k = sym.symbols("k")
+        r3_list = sym.solve((k**2 - r1**2 -r2**2 - r4**2) / (2*r2*r4) - self.fsn_results[2], k)  # Returns a list with positive and negative result
+        r3 = max(r3_list)
+        
+        self.lengths = [r1, r2, r3, r4]
+        
+        print("Linkage dimensions calculated as follows:")
+        print("R1 = %.5f\nR2 = %.5f\nR3 = %.5f\nR4 = %.5f" % tuple(self.lengths))
+        print()
+        return
+        
     
     def validate_results(self):
         return
