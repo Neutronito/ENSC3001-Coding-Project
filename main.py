@@ -1,17 +1,17 @@
-from sympy.abc import x
+from sympy.abc import x, y
+import sympy as sym
 import sympy.parsing.sympy_parser as parser
 import math
 
 #####################################################
-##                 Solver Class                     #
+##                   Solver Class                  ##
 #####################################################
 class Solver:
     #Class constructor which can take in optional arguments (default to 0)
     #This can be used to construct a default class without needing manual inputs later on
-    #Note, all angles are in radians
-    def __init__(self, func="2*x", x_min=1, x_max=2,
-                    theta2_start=0, theta2_max_rot=0,
-                    theta4_start=0, theta4_max_rot=0):
+    def __init__(self, func="1 / x**2", x_min=1, x_max=2,
+                    theta2_start=7*math.pi/12, theta2_max_rot=math.pi/3,
+                    theta4_start=4*math.pi/3, theta4_max_rot=math.pi/2):
         self.func = parser.parse_expr(func)
         self.x_min = x_min
         self.x_max = x_max
@@ -20,8 +20,16 @@ class Solver:
         self.theta4_start   = theta4_start
         self.theta4_max_rot = theta4_max_rot
         
-        self.x_points = [0, 0, 0, 0]  # Array to store precision points found given Chebyshev spacing
+        self.x_points = [0, 0, 0]        # Array to store precision points found given Chebyshev spacing
         self.y_points = [0, 0, 0]        # Array to store corresponding y-points from above x-points
+        
+        self.func_theta2 = None
+        self.func_theta4 = None
+        
+        self.theta2_vals = [0, 0, 0]
+        self.theta4_vals = [0, 0, 0]
+        
+        self.fsn_eq = [None, None, None] # Array to store 3 freudenstein equations
 
     #reads input from the user to use as parameters
     #function blocks until a valid input is given
@@ -61,19 +69,21 @@ class Solver:
         
         self.find_chebyshev_spacing()
         self.find_corresponding_y_points()
-        print()
+        self.linear_mapping_x_to_theta2()
+        self.linear_mapping_y_to_theta4()
+        self.determine_corresponding_angles()
+        return
         
     # Applies Chebyshev spacing formula to determine 3 precision points
     def find_chebyshev_spacing(self):
         n = 3
-        self.x_points[3] = self.x_max
-        
-        for j in range(2, -1, -1):   # Counts backwards in sequence 2, 1, 0
-            cos_term = math.cos((2*(j+1) - 1) * math.pi / (2*n))
-            first_term = 0.5 * (self.x_points[j+1] + self.x_min)
-            second_term = 0.5 * (self.x_points[j+1] - self.x_min) * cos_term
+                
+        for j in range(3, 0, -1):   # Counts backwards in sequence 3, 2, 1
+            cos_term = math.cos((2*j - 1) * math.pi / (2*n))
+            first_term = 0.5 * (self.x_max + self.x_min)
+            second_term = 0.5 * (self.x_max - self.x_min) * cos_term
             result = first_term - second_term
-            self.x_points[j] = result 
+            self.x_points[j-1] = result 
         
         print("Given lower bound of x0 = %f, and upper bound of x4 = %f" % (self.x_min, self.x_max))
         print("Following precision points found:")
@@ -81,6 +91,7 @@ class Solver:
         print()
         return
     
+    # Substitutes x points into the mathematic function to determine corresponding y points
     def find_corresponding_y_points(self):        
         for i in range(0, 3):
             x_val = self.x_points[i]
@@ -91,12 +102,57 @@ class Solver:
         print()
         return
         
+    def linear_mapping_x_to_theta2(self):
+        a, b = sym.symbols("a,b")
+        angle1 = self.theta2_start
+        angle2 = self.theta2_start + self.theta2_max_rot
+        
+        eq1 = sym.Eq(a*self.x_min + b, angle1)
+        eq2 = sym.Eq(a*self.x_max + b, angle2)
+        result = sym.solve([eq1, eq2], (a, b))
+        self.func_theta2 = sym.lambdify(x, x*result[a] + result[b])
+        
+        print("Linearly mapped x to theta2 (truncated values):")
+        print("Theta2 = %.3f * x + %.3f" % (result[a], result[b]))
+        print()
+        return
+        
+    def linear_mapping_y_to_theta4(self):
+        c, d = sym.symbols("c,d")
+        angle1 = self.theta4_start
+        angle2 = self.theta4_start + self.theta4_max_rot
+        y_min = self.func.subs(x, self.x_min)
+        y_max = self.func.subs(x, self.x_max)
+        
+        eq1 = sym.Eq(c*y_min + d, angle1)
+        eq2 = sym.Eq(c*y_max + d, angle2)
+        result = sym.solve([eq1, eq2], (c, d))
+        self.func_theta4 = sym.lambdify(y, y*result[c] + result[d])
+        
+        print("Linearly mapped y to theta4 (truncated values):")
+        print("Theta4 = %.3f * y + %.3f" % (result[c], result[d]))
+        print()
+        return
+    
+    def determine_corresponding_angles(self):
+        for i in range(3):
+            self.theta2_vals[i] = self.func_theta2(self.x_points[i])
+            self.theta4_vals[i] = self.func_theta4(self.y_points[i])
+        
+        print("Linearly mapped theta values determined:")
+        print("Theta2 values:", self.theta2_vals)
+        print("Theta4 values:", self.theta4_vals)
+    
+    def validate_results(self):
+        return
+    
+    
     #prints out the results of the calculations
     #takes the integer array of lengths as parameter
     def print_results(self):
         #print the results out to the terminal
         #can draw a graph or some other fancy shit too
-        print()
+        return
 
     #method which when called will perform all steps of solving the linkage, and then outputting results
     #will take manual inputs if specified, otherwise uses values from object definition
@@ -110,6 +166,7 @@ class Solver:
         
         self.execute_4bar_calculations()
         self.print_results()
+        return
 
 #####################################################
 ##                Main Execution                    #
