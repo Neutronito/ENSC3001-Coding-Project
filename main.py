@@ -46,19 +46,47 @@ class Solver:
         print("4: \t The rotation of the output link, in degrees \t E.g. 60")
         print("\n")
 
-        function_input = input("Enter the function. Please note, you MUST include all multiplications using the * symbol, and do not include y=\n")
-        self.func = parser.parse_expr(function_input)
+        #parse the function
+        while (True):
+            function_input = input("Enter the function. Please note, you MUST include all multiplications using the * symbol, and do not include y=\n")
+            try:
+                self.func = parser.parse_expr(function_input)
+                break
+            except:
+                print("Error, your equation was invalid. Did you forget to remove the = sign, or include all the *?\n")
+                
 
-        function_bounds = input("Enter the lower and upper x boundaries (respectively) as two number seperated by a whitespace\n")
-        split_bounds = function_bounds.split(" ")
-        self.x_min = int(split_bounds[0])
-        self.x_max = int(split_bounds[1])
+        #parse the x bounds
+        while (True):
+            function_bounds = input("Enter the lower and upper x boundaries (respectively) as two number seperated by a whitespace\n")
+            split_bounds = function_bounds.split(" ")
+            try:
+                self.x_min = float(split_bounds[0])
+                self.x_max = float(split_bounds[1])
 
-        input_rotation = input("Enter the rotation of the input link, in degrees\n")
-        self.theta2_max_rot = math.radians(int(input_rotation))
+                if (self.x_max > self.x_min):
+                        break
+                print("Error, the upper bound must be bigger than the lowerbound\n")
+            except: 
+                print("Error, please input only numerical values, ensuring the two values are seperated by a whitespace\n")
         
-        output_rotation = input("Enter the rotation of the output link, in degrees\n")
-        self.theta4_max_rot = math.radians(int(output_rotation))        
+        #parse input angle range
+        while (True):
+            input_rotation = input("Enter the rotation of the input link, in degrees\n")
+            try:
+                self.theta2_max_rot = math.radians(float(input_rotation))
+                break
+            except:
+                print("Error, please input only numerical values. Do not include any whitespaces.\n")
+
+        #parse output angle range
+        while (True):
+            output_rotation = input("Enter the rotation of the output link, in degrees\n")
+            try:
+                self.theta4_max_rot = math.radians(float(output_rotation))
+                break      
+            except:
+                print("Error, please input only numerical values. Do not include any whitespaces.\n")
 
 
     #accepts the function and bounds parameters, executing calculations to determine the corresponding 4bar linkage
@@ -176,6 +204,7 @@ if __name__ == "__main__":
 
     testSolver = Solver()
     testSolver.solve()
+
 
     
     # Examples of input
