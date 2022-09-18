@@ -90,6 +90,31 @@ class Solver:
             except:
                 print("Error, please input only numerical values. Do not include any whitespaces.\n")
 
+        #parse input angle starting value
+        while (True):
+            input_rotation_start = input("Enter the start angle of the input link, in degrees. If no value is given, 0 is used as a default.\n")
+            if (len(input_rotation_start) == 0):
+                break
+            
+            try:
+                self.theta2_start = math.radians(float(input_rotation_start))
+                break
+            except:
+                print("Error, please input only numerical values. Do not include any whitespaces.\n")
+
+        #parse output angle starting value
+        while (True):
+            output_rotation_start = input("Enter the start angle of the output link, in degrees. If no value is given, 0 is used as a default.\n")
+            if (len(output_rotation_start) == 0):
+                break
+            
+            try:
+                self.theta4_start = math.radians(float(output_rotation_start))
+                break
+            except:
+                print("Error, please input only numerical values. Do not include any whitespaces.\n")
+
+
 
     #accepts the function and bounds parameters, executing calculations to determine the corresponding 4bar linkage
     #returns an integer array, giving the lengths of the linkages
@@ -240,7 +265,7 @@ if __name__ == "__main__":
     
 
     testSolver = Solver()
-    testSolver.solve()
+    testSolver.solve(True)
 
 
     
