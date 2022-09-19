@@ -34,6 +34,8 @@ class Solver:
         
         self.lengths = [0, 0, 0, 0]      # Array to store solved linkage dimensions
 
+        self.silent_flag = False        # Option for silent execution, true yields no prints
+
     #reads input from the user to use as parameters
     #function blocks until a valid input is given
     def read_user_input(self):
@@ -115,6 +117,20 @@ class Solver:
             except:
                 print("Error, please input only numerical values. Do not include any whitespaces.\n")
 
+        #request whether the user wishes for silent print or not
+        while (True):
+            print_option = input("Do you wish to enable the silent flag? Please type in true for silent execution, and false for verbose execution.")
+
+            if print_option.lower() in ['true', '1', 't', 'y', 'yes']:
+                self.silent_flag = True
+                break
+            
+            elif print_option.lower() in ['false', '0', 'f', 'n', 'no']:
+                self.silent_flag = False
+                break
+
+            else:
+                print('Error, your input was not understood. Please try again.\n')
 
 
     #accepts the function and bounds parameters, executing calculations to determine the corresponding 4bar linkage
@@ -172,10 +188,11 @@ class Solver:
             result = first_term - second_term
             self.x_points[j-1] = result 
         
-        print("Given lower bound of x0 = %f, and upper bound of x4 = %f" % (self.x_min, self.x_max))
-        print("Following precision points found:")
-        print("x1=%f, x2=%f, x3=%f" % tuple(self.x_points[0:3]))
-        print()
+        if self.silent_flag is False:
+            print("Given lower bound of x0 = %f, and upper bound of x4 = %f" % (self.x_min, self.x_max))
+            print("Following precision points found:")
+            print("x1=%f, x2=%f, x3=%f" % tuple(self.x_points[0:3]))
+            print()
         return
     
     # Substitutes x points into the mathematic function to determine corresponding y points
@@ -183,10 +200,11 @@ class Solver:
         for i in range(0, 3):
             x_val = self.x_points[i]
             self.y_points[i] = self.func.subs(x, x_val)
-            
-        print("Following corresponding y-points found:")
-        print("y1=%f, y2=%f, y3=%f" % tuple(self.y_points[0:3]))
-        print()
+
+        if self.silent_flag is False: 
+            print("Following corresponding y-points found:")
+            print("y1=%f, y2=%f, y3=%f" % tuple(self.y_points[0:3]))
+            print()
         return
         
     def linear_mapping_x_to_theta2(self):
@@ -199,9 +217,10 @@ class Solver:
         result = sym.solve([eq1, eq2], (a, b))
         self.func_theta2 = sym.lambdify(x, x*result[a] + result[b])
         
-        print("Linearly mapped x to theta2 (truncated values):")
-        print("Theta2 = %.3f * x + %.3f" % (result[a], result[b]))
-        print()
+        if self.silent_flag is False:
+            print("Linearly mapped x to theta2 (truncated values):")
+            print("Theta2 = %.3f * x + %.3f" % (result[a], result[b]))
+            print()
         return
         
     def linear_mapping_y_to_theta4(self):
@@ -216,9 +235,10 @@ class Solver:
         result = sym.solve([eq1, eq2], (c, d))
         self.func_theta4 = sym.lambdify(y, y*result[c] + result[d])
         
-        print("Linearly mapped y to theta4 (truncated values):")
-        print("Theta4 = %.3f * y + %.3f" % (result[c], result[d]))
-        print()
+        if self.silent_flag is False:
+            print("Linearly mapped y to theta4 (truncated values):")
+            print("Theta4 = %.3f * y + %.3f" % (result[c], result[d]))
+            print()
         return
     
     def determine_corresponding_angles(self):
@@ -226,10 +246,11 @@ class Solver:
             self.theta2_vals[i] = self.func_theta2(self.x_points[i])
             self.theta4_vals[i] = self.func_theta4(self.y_points[i])
         
-        print("Linearly mapped theta values determined:")
-        print("Theta2 values:", self.theta2_vals)
-        print("Theta4 values:", self.theta4_vals)
-        print()
+        if self.silent_flag is False:
+            print("Linearly mapped theta values determined:")
+            print("Theta2 values:", self.theta2_vals)
+            print("Theta4 values:", self.theta4_vals)
+            print()
         return
     
     def solve_freudenstein(self):
@@ -241,8 +262,10 @@ class Solver:
         self.fsn_results[0] = result[a]
         self.fsn_results[1] = result[b]
         self.fsn_results[2] = result[c]
-        print("Freudenstein calculates K1 as %.3f, K2 as %.3F and K3 as %.3f" % tuple(self.fsn_results))
-        print()
+
+        if self.silent_flag is False:
+            print("Freudenstein calculates K1 as %.3f, K2 as %.3F and K3 as %.3f" % tuple(self.fsn_results))
+            print()
         return
     
     # Solves for the dimensions of all linkages, assuming R1 = 1m
@@ -257,9 +280,10 @@ class Solver:
         
         self.lengths = [r1, r2, r3, r4]
         
-        print("Linkage dimensions calculated as follows:")
-        print("R1 = %.5f\nR2 = %.5f\nR3 = %.5f\nR4 = %.5f" % tuple(self.lengths))
-        print()
+        if self.silent_flag is False:
+            print("Linkage dimensions calculated as follows:")
+            print("R1 = %.5f\nR2 = %.5f\nR3 = %.5f\nR4 = %.5f" % tuple(self.lengths))
+            print()
         return
         
     
@@ -279,10 +303,11 @@ class Solver:
     def solve(self, manual=False):
         if manual: 
             self.read_user_input()
-            
-        print("Function entered is:")
-        print("y = " + str(self.func))
-        print()
+
+        if self.silent_flag is False:  
+            print("Function entered is:")
+            print("y = " + str(self.func))
+            print()
         
         self.execute_4bar_calculations()
         self.print_results()
@@ -295,7 +320,7 @@ if __name__ == "__main__":
     
 
     testSolver = Solver()
-    testSolver.solve()
+    testSolver.solve(True)
 
 
     
