@@ -128,24 +128,34 @@ class Solver:
         self.find_corresponding_y_points()
 
         #loop through starting theta 2 angle to start + 360
-        start_angle = self.theta2_start
+        start_angle_2 = self.theta2_start
+        found_solution = False
         for x in range(0, 360, 5):
-            self.theta2_start = start_angle + math.radians(x)
-
-            self.linear_mapping_x_to_theta2()
-            self.linear_mapping_y_to_theta4()
-            self.determine_corresponding_angles()
-            self.solve_freudenstein()
-            self.solve_linkage_dimensions()
-
-            #check if all values are positive
-            found_negative = False    
-            for length in self.lengths:
-                if (length < 0):
-                    found_negative = True
+            self.theta2_start = start_angle_2 + math.radians(x)
             
-            #This solution has all positive lengths so break
-            if (found_negative is False):
+            #loop through starting theta 4 angle to start + 360
+            start_angle_4 = self.theta4_start
+            for y in range(0, 360, 5):
+                self.theta4_start = start_angle_4 + math.radians(y)
+
+                self.linear_mapping_x_to_theta2()
+                self.linear_mapping_y_to_theta4()
+                self.determine_corresponding_angles()
+                self.solve_freudenstein()
+                self.solve_linkage_dimensions()
+
+                #check if all values are positive
+                found_negative = False    
+                for length in self.lengths:
+                    if (length < 0):
+                        found_negative = True
+                
+                #This solution has all positive lengths so break
+                if (found_negative is False):
+                    found_solution = True
+                    break
+            
+            if found_solution:
                 break
         
         print("We have obtained the final lengths with all positive solutions")            
