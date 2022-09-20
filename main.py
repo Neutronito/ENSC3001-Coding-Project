@@ -1,8 +1,10 @@
 from cmath import pi
+import sys
 from sympy.abc import x, y
 import sympy as sym
 import sympy.parsing.sympy_parser as parser
 import math
+import copy
 
 #####################################################
 ##                   Solver Class                  ##
@@ -35,6 +37,9 @@ class Solver:
         self.lengths = [0, 0, 0, 0]      # Array to store solved linkage dimensions
 
         self.silent_flag = False        # Option for silent execution, true yields no prints
+
+        self.optimise_results = False
+        self.minimum_range = 0
 
     #reads input from the user to use as parameters
     #function blocks until a valid input is given
@@ -119,7 +124,7 @@ class Solver:
 
         #request whether the user wishes for silent print or not
         while (True):
-            print_option = input("Do you wish to enable the silent flag? Please type in true for silent execution, and false for verbose execution.")
+            print_option = input("Do you wish to enable the silent flag? Please type in true for silent execution, and false for verbose execution.\n")
 
             if print_option.lower() in ['true', '1', 't', 'y', 'yes']:
                 self.silent_flag = True
@@ -132,6 +137,37 @@ class Solver:
             else:
                 print('Error, your input was not understood. Please try again.\n')
 
+        #request whether to optimise results
+        while(True):
+            optimise_option = input("Do you want to calculate optimal results? In this mode, the program will iterate over many angles and find the result with the smallest range of linkage lengths. WARNING, this can be expensive. Please type in true or false\n")
+
+            if print_option.lower() in ['true', '1', 't', 'y', 'yes']:
+                self.optimise_results = True
+                break
+            
+            elif print_option.lower() in ['false', '0', 'f', 'n', 'no']:
+                self.optimise_results = False
+                break
+
+            else:
+                print('Error, your input was not understood. Please try again.\n')
+
+        #request minimum range if optimisation was enabled
+        if (self.optimise_results):
+            while(True):
+                optimise_option = input("Since you enabled optimised results, please specify a minimum range for the linkage lengths. A higher range can improve execution speed, as the program will terminate as soon as it finds a valid result. Please enter a positive integer to define the miniumum range.\n")
+            
+                try:
+                    input_number = int(optimise_option)
+                    if input_number < 0:
+                        print("Error, you must input a non negative integer.\n")
+                    else:
+                        self.minimum_range = input_number
+                        break
+
+                except:
+                    print("Error, please input only numerical values, as an integer. Do not include any whitespaces.\n")
+                
 
     #accepts the function and bounds parameters, executing calculations to determine the corresponding 4bar linkage
     #returns an integer array, giving the lengths of the linkages
@@ -145,7 +181,10 @@ class Solver:
 
         #loop through starting theta 2 angle to start + 360
         start_angle_2 = self.theta2_start
-        found_solution = False
+        current_range = math.inf
+        optimal_lengths = [0, 0, 0, 0]
+        finished_early = False
+
         for x in range(0, 360, 5):
             self.theta2_start = start_angle_2 + math.radians(x)
             
@@ -166,15 +205,40 @@ class Solver:
                     if (length < 0):
                         found_negative = True
                 
-                #This solution has all positive lengths so break
+                #This solution has all positive lengths so we consider it
                 if (found_negative is False):
-                    found_solution = True
-                    break
+                    
+                    #check to see if we should be trying to optimise results
+                    if (self.optimise_results):
+                        #check to see if its better than what we have
+                        biggest_val = max(self.lengths)
+                        smallest_val = min(self.lengths)
+
+                        new_range = biggest_val - smallest_val
+
+                        #our result has a smaller range, so its better
+                        if new_range < current_range:
+                            current_range = biggest_val
+                            optimal_lengths = copy.deepcopy(self.lengths)
+                            
+                            #check if we are below minimum range, if so we should stop
+                            if (current_range < self.minimum_range):
+                                finished_early = True
+                                break
+
+                    else:
+                        optimal_lengths = copy.deepcopy(self.lengths)
+                        finished_early = True
+                        break
             
-            if found_solution:
+            if (finished_early):
                 break
+
+
         
-        print("We have obtained the final lengths with all positive solutions")            
+        print("Final Linkage dimensions calculated as follows:")
+        print("R1 = %.5f\nR2 = %.5f\nR3 = %.5f\nR4 = %.5f" % tuple(optimal_lengths))
+        print()            
         return
         
     # Applies Chebyshev spacing formula to determine 3 precision points
@@ -309,6 +373,11 @@ class Solver:
             print("y = " + str(self.func))
             print()
         
+        #some testing
+        self.optimise_results = True
+        self.silent_flag = True
+        self.minimum_range = 3
+
         self.execute_4bar_calculations()
         self.print_results()
         return
@@ -320,7 +389,7 @@ if __name__ == "__main__":
     
 
     testSolver = Solver()
-    testSolver.solve(True)
+    testSolver.solve(False)
 
 
     
