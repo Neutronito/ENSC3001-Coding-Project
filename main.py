@@ -36,10 +36,10 @@ class Solver:
         
         self.lengths = [0, 0, 0, 0]      # Array to store solved linkage dimensions
 
-        self.silent_flag = False        # Option for silent execution, true yields no prints
+        self.silent_flag = False         # Option for silent execution, true yields no prints
 
-        self.optimise_results = False
-        self.minimum_range = 0
+        self.optimise_results = False    # Option to calculation optimised results, true will optimise
+        self.minimum_range = 0           # The minimum range the answers must have to terminate exeuction early
 
     #reads input from the user to use as parameters
     #function blocks until a valid input is given
