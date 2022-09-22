@@ -141,11 +141,11 @@ class Solver:
         while(True):
             optimise_option = input("Do you want to calculate optimal results? In this mode, the program will iterate over many angles and find the result with the smallest range of linkage lengths. WARNING, this can be expensive. Please type in true or false\n")
 
-            if print_option.lower() in ['true', '1', 't', 'y', 'yes']:
+            if optimise_option.lower() in ['true', '1', 't', 'y', 'yes']:
                 self.optimise_results = True
                 break
             
-            elif print_option.lower() in ['false', '0', 'f', 'n', 'no']:
+            elif optimise_option.lower() in ['false', '0', 'f', 'n', 'no']:
                 self.optimise_results = False
                 break
 
@@ -389,7 +389,7 @@ if __name__ == "__main__":
     
 
     testSolver = Solver()
-    testSolver.solve(False)
+    testSolver.solve(True)
 
 
     
