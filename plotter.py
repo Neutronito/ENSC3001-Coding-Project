@@ -17,6 +17,7 @@ class Plotter:
     def __init__(self, r1, r2, r3, r4, fsn_results,
                  theta2_start, theta2_max_rot, 
                  theta4_start, theta4_max_rot,
+                 start_x, start_y,
                  theta2_angular_speed=1,
                  time_increment=0.05,
                  ) -> None:
@@ -34,6 +35,9 @@ class Plotter:
         self.K = fsn_results
         self.points = []
         
+        self.start_x = start_x
+        self.start_y = start_y
+        
         pass
     
     def generate_points(self) -> None:
@@ -41,6 +45,11 @@ class Plotter:
         
         t2_current = self.t2_i
         t4_current = None
+        
+        first_iteration = True
+        beta = None
+        BE = None
+        Ex, Ey = None, None
         
         while t2_current <= self.t2_f:
             #print("current angle is ", math.degrees(t2_current))
@@ -70,7 +79,23 @@ class Plotter:
             Cx = Dx - r4 * math.cos(t4_current)
             Cy = -r4 * math.sin(t4_current)
             
-            result = [Ax, Ay, Bx, By, Cx, Cy, Dx, Dy]
+            # Determine coupler curve point based on initial x and y
+            if first_iteration:
+                first_iteration = False
+                
+                Ex = self.start_x
+                Ey = self.start_y
+                
+                angle1 = math.atan2(Cy - By, Cx - Bx)
+                beta = math.atan2(Ey - By, Ex - Bx) - math.atan2(Cy - By, Cx - Bx)
+                BE = math.sqrt((Ex - Bx)**2 + (Ey - By)**2)
+            
+            angle1 = math.atan2(Cy - By, Cx - Bx)
+            Ex = Bx + BE * math.cos(beta + angle1)
+            Ey = By + BE * math.sin(beta + angle1)
+            
+            
+            result = [Ax, Ay, Bx, By, Cx, Cy, Dx, Dy, Ex, Ey]
             self.points.append(result)
             
             t2_current += self.w2 * self.time_inc
@@ -83,26 +108,32 @@ class Plotter:
         ax.grid(visible=True, color='grey', linestyle='-', linewidth=1)
         
         line, = ax.plot([], [], 'o-', lw=2)
+        line2, = ax.plot([], [], '-', lw=1, color="blue")
         trace, = ax.plot([], [], '.-', lw=1, ms=2)
         history_x, history_y = deque(maxlen=len(self.points)), deque(maxlen=len(self.points))
         #c = np.array([(1, 0, 0, 1), (0, 1, 0, 1), (0, 0, 1, 1)])
         
         def init():
             line.set_data([], [])
-            return line,
+            return line, 
             
         def animate(i):
             thisx = [self.points[i][0], self.points[i][2], self.points[i][4], self.points[i][6], self.points[i][0]]
             thisy = [self.points[i][1], self.points[i][3], self.points[i][5], self.points[i][7], self.points[i][1]]
             
+            # Coupler
+            couplerx = [self.points[i][2], self.points[i][8], self.points[i][4]]
+            couplery = [self.points[i][3], self.points[i][9], self.points[i][5]]
+            
             if i == 0:
                 history_x.clear()
                 history_y.clear()
                 
-            history_x.appendleft((thisx[2] + thisx[1]) / 2)
-            history_y.appendleft((thisy[2] + thisy[1]) / 2)
+            history_x.appendleft(self.points[i][8])
+            history_y.appendleft(self.points[i][9])
             
             line.set_data(thisx, thisy)
+            line2.set_data(couplerx, couplery)
             trace.set_data(history_x, history_y)
             return line, trace,
         

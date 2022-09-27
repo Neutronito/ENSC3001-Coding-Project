@@ -381,7 +381,8 @@ class Solver:
         print(math.degrees(self.theta4_start) % 360)
         r1, r2, r3, r4 = tuple(self.lengths)
         Plot = plotter.Plotter(r1, r2, r3, r4, self.fsn_results, 
-                               self.theta2_start, self.theta2_max_rot, self.theta4_start, self.theta4_max_rot)
+                               self.theta2_start, self.theta2_max_rot, self.theta4_start, self.theta4_max_rot,
+                               self.x_points[0], self.x_points[1])
         Plot.generate_points()
         Plot.animate_linkage()
         
@@ -406,29 +407,51 @@ class Solver:
         self.execute_4bar_calculations()
         self.print_results()
         pass
+    
+    def testing(self):
+        #These calculations only need to be done once
+        self.find_chebyshev_spacing()
+        self.find_corresponding_y_points()
+        self.linear_mapping_x_to_theta2()
+        self.linear_mapping_y_to_theta4()
+        self.determine_corresponding_angles()
+        self.solve_freudenstein()
+        self.solve_linkage_dimensions()
+        
+        
 
 #####################################################
 ##                Main Execution                    #
 #####################################################
 if __name__ == "__main__":
     
-    # This one is from the workshop
+    #This one is from the workshop
     # testSolver = Solver(func="x**(-2)", 
     #                     x_min=1, x_max=2,
     #                     theta2_start=7*math.pi/12, theta2_max_rot=math.pi/3,
     #                     theta4_start=4*math.pi/3, theta4_max_rot=math.pi/2)
     
-    testSolver = Solver(func="sin(x)", 
-                        x_min=math.pi/4, x_max=3*math.pi/4,
-                        theta2_start=7*math.pi/12, theta2_max_rot=2*math.pi/3,
-                        theta4_start=4*math.pi/3, theta4_max_rot=math.pi/3)
+    # testSolver = Solver(func="sin(x)", 
+    #                     x_min=math.pi/4, x_max=3*math.pi/4,
+    #                     theta2_start=7*math.pi/12, theta2_max_rot=2*math.pi/3,
+    #                     theta4_start=4*math.pi/3, theta4_max_rot=math.pi/3)
     
     # testSolver = Solver(func="ln(x)/ln(10)", 
     #                     x_min=1, x_max=2,
     #                     theta2_start=7*math.pi/12, theta2_max_rot=2*math.pi,
     #                     theta4_start=4*math.pi/3, theta4_max_rot=math.pi/3)
+    arbitrarySolver = Solver(func="sin(x)", x_min=0.79, x_max=2.36,
+                        theta2_start=7*math.pi/12, theta2_max_rot=math.pi/3,
+                        theta4_start=4*math.pi/3, theta4_max_rot=math.pi/2)
+    arbitrarySolver.testing()
     
-    testSolver.solve()
+    
+    # testSolver = Solver(func="1/x", 
+    #                     x_min=1, x_max=2,
+    #                     theta2_start=7*math.pi/12, theta2_max_rot=2/3*math.pi,
+    #                     theta4_start=4*math.pi/3, theta4_max_rot=math.pi/3)
+    
+    # testSolver.solve()
 
 
     
