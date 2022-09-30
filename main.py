@@ -41,7 +41,7 @@ class Solver:
 
         self.optimise_results = do_optimise # Option to calculation optimised results, true will optimise
         self.ensure_linkage_validity = True # Option to ensure starting position of linkage is valid
-        self.minimum_range = 0              # The minimum range the answers must have to terminate exeuction early
+        self.minimum_range = 3              # The minimum range the answers must have to terminate exeuction early
 
     #reads input from the user to use as parameters for calculations and output
     #function blocks until a valid input is given
@@ -239,7 +239,7 @@ class Solver:
                 break
 
         print("Final Linkage dimensions calculated as follows:")
-        print("R1 = %.5f\nR2 = %.5f\nR3 = %.5f\nR4 = %.5f" % tuple(optimal_lengths))
+        print("R1 = %.3f\nR2 = %.3f\nR3 = %.3f\nR4 = %.3f" % tuple(optimal_lengths))
         print()            
         pass
         
@@ -257,7 +257,7 @@ class Solver:
         if self.silent_flag is False:
             print("Given lower bound of x0 = %f, and upper bound of x4 = %f" % (self.x_min, self.x_max))
             print("Following precision points found:")
-            print("x1=%f, x2=%f, x3=%f" % tuple(self.x_points[0:3]))
+            print("x1=%.3f, x2=%.3f, x3=%.3f" % tuple(self.x_points[0:3]))
             print()
         pass
     
@@ -269,7 +269,7 @@ class Solver:
 
         if self.silent_flag is False: 
             print("Following corresponding y-points found:")
-            print("y1=%f, y2=%f, y3=%f" % tuple(self.y_points[0:3]))
+            print("y1=%.3f, y2=%.3f, y3=%.3f" % tuple(self.y_points[0:3]))
             print()
         pass
     
@@ -317,8 +317,8 @@ class Solver:
         
         if self.silent_flag is False:
             print("Linearly mapped theta values determined:")
-            print("Theta2 values:", self.theta2_vals)
-            print("Theta4 values:", self.theta4_vals)
+            print("Theta2 values: %.3f, %.3f, %.3f" % tuple(self.theta2_vals))
+            print("Theta4 values: %.3f, %.3f, %.3f" % tuple(self.theta4_vals))
             print()
         pass
     
@@ -360,8 +360,8 @@ class Solver:
     def print_results(self):
         
         print("starting angles are:")
-        print(math.degrees(self.theta2_start) % 360)
-        print(math.degrees(self.theta4_start) % 360)
+        print("%.2f" % (math.degrees(self.theta2_start) % 360))
+        print("%.2f" % (math.degrees(self.theta4_start) % 360))
         r1, r2, r3, r4 = tuple(self.lengths)
         Plot = plotter.Plotter(r1, r2, r3, r4, 
                                self.theta2_start, self.theta2_max_rot, self.theta4_start, self.theta4_max_rot,
@@ -381,11 +381,6 @@ class Solver:
             print("Function entered is:")
             print("y = " + str(self.func))
             print()
-        
-        #some testing
-        self.optimise_results = True
-        self.silent_flag = True
-        self.minimum_range = 3
 
         self.execute_4bar_calculations()
         self.print_results()
@@ -396,6 +391,22 @@ class Solver:
 #####################################################
 if __name__ == "__main__":
 
-    testSolver = Solver()
-    testSolver.solve(manual=True)
-    pass
+
+    testSolver = Solver(func="sin(x)", 
+                        x_min=math.pi/4, x_max=3*math.pi/4,
+                        theta2_start=7*math.pi/12, theta2_max_rot=2*math.pi/3,
+                        theta4_start=4*math.pi/3, theta4_max_rot=math.pi/3, 
+                        do_optimise=True)
+
+
+    # testSolver = Solver(func="ln(x)/ln(10)", 
+    #                     x_min=1, x_max=2,
+    #                     theta2_start=7*math.pi/12, theta2_max_rot=2*math.pi,
+    #                     theta4_start=4*math.pi/3, theta4_max_rot=math.pi/3)
+
+    testSolver.solve()
+    
+    
+    # UNCOMMENT WHEN YOU WANT TO DO MANUAL INPUT
+    # testSolverManual = Solver()
+    # testSolverManual.solve(manual=True)
