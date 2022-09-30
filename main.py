@@ -1,10 +1,7 @@
-from cmath import pi
 import math
-import sys
 from sympy.abc import x, y
 import sympy as sym
 import sympy.parsing.sympy_parser as parser
-
 import copy
 
 import plotter
@@ -17,7 +14,8 @@ class Solver:
     #This can be used to construct a default class without needing manual inputs later on
     def __init__(self, func="sin(x)", x_min=math.pi/4, x_max=3*math.pi/4,
                     theta2_start=7*math.pi/12, theta2_max_rot=math.pi/2,
-                    theta4_start=4*math.pi/3, theta4_max_rot=math.pi/2):
+                    theta4_start=4*math.pi/3, theta4_max_rot=math.pi/2,
+                    is_silent=True):
         self.func = parser.parse_expr(func)
         self.x_min = x_min
         self.x_max = x_max
@@ -39,11 +37,10 @@ class Solver:
         
         self.lengths = [0, 0, 0, 0]         # Array to store solved linkage dimensions
 
-        self.silent_flag = False            # Option for silent execution, true yields no prints
+        self.silent_flag = is_silent        # Option for silent execution, true yields limited prints
 
         self.optimise_results = True        # Option to calculation optimised results, true will optimise
-        self.use_grashof_inequality = False # Option to satisfy Grashof inequality when determining lengths   (DO NOT USE)
-        self.ensure_linkage_validity = True
+        self.ensure_linkage_validity = True # Option to ensure starting position of linkage is valid
         self.minimum_range = 0              # The minimum range the answers must have to terminate exeuction early
 
     #reads input from the user to use as parameters for calculations and output
@@ -206,14 +203,6 @@ class Solver:
                     if (length < 0):
                         found_negative = True
                  
-                       
-                # Check Grashof inequality (optional)
-                grashof_satisfied = True
-                if (self.use_grashof_inequality):
-                    ordered = sorted(self.lengths)
-                    grashof_satisfied = (ordered[2] + ordered[3] < ordered[0] + ordered[1])
-                    
-                
                 # Check linkage dimensions form valid 4-bar linkage in starting angle
                 valid_linkage = True   
                 if (self.ensure_linkage_validity):
@@ -221,7 +210,7 @@ class Solver:
                     valid_linkage = (diagonal + self.lengths[3]) > self.lengths[2]
                     
                 #This solution has all positive lengths so we consider it
-                if (not found_negative and grashof_satisfied and valid_linkage):
+                if (not found_negative and valid_linkage):
                     
                     #check to see if we should be trying to optimise results
                     if (self.optimise_results):
@@ -249,8 +238,6 @@ class Solver:
             if (finished_early):
                 break
 
-
-        
         print("Final Linkage dimensions calculated as follows:")
         print("R1 = %.5f\nR2 = %.5f\nR3 = %.5f\nR4 = %.5f" % tuple(optimal_lengths))
         print()            
@@ -285,7 +272,8 @@ class Solver:
             print("y1=%f, y2=%f, y3=%f" % tuple(self.y_points[0:3]))
             print()
         pass
-        
+    
+    # Linearly maps the x values to theta2 angles
     def linear_mapping_x_to_theta2(self) -> None:
         a, b = sym.symbols("a, b")
         angle1 = self.theta2_start
@@ -301,7 +289,8 @@ class Solver:
             print("Theta2 = %.3f * x + %.3f" % (result[a], result[b]))
             print()
         pass
-        
+    
+    # Linearly maps the y values to theta4 angles
     def linear_mapping_y_to_theta4(self) -> None:
         c, d = sym.symbols("c,d")
         angle1 = self.theta4_start
@@ -320,6 +309,7 @@ class Solver:
             print()
         pass
     
+    # Uses the linear mapping functions to determine values of theta2 and theta4
     def determine_corresponding_angles(self) -> None:
         for i in range(3):
             self.theta2_vals[i] = self.func_theta2(self.x_points[i])
@@ -332,7 +322,7 @@ class Solver:
             print()
         pass
     
-    # solves the freudenstein equation to determine the 3 K values
+    # Solves the freudenstein equation to determine the 3 K values
     def solve_freudenstein(self) -> None:
         a,b,c = sym.symbols('a, b, c')
         eq1 = sym.Eq(a*sym.cos(self.theta2_vals[0]) + b*sym.cos(self.theta4_vals[0]) + c, sym.cos(self.theta2_vals[0] - self.theta4_vals[0]))
@@ -366,14 +356,14 @@ class Solver:
             print()
         pass
     
-    #prints out the results of the calculations
+    # Prints out the results of the calculations and performs graphical representation
     def print_results(self):
         
         print("starting angles are:")
         print(math.degrees(self.theta2_start) % 360)
         print(math.degrees(self.theta4_start) % 360)
         r1, r2, r3, r4 = tuple(self.lengths)
-        Plot = plotter.Plotter(r1, r2, r3, r4, self.fsn_results, 
+        Plot = plotter.Plotter(r1, r2, r3, r4, 
                                self.theta2_start, self.theta2_max_rot, self.theta4_start, self.theta4_max_rot,
                                self.x_points[0], self.x_points[1])
         Plot.generate_points()
@@ -381,8 +371,8 @@ class Solver:
         
         return
 
-    #method which when called will perform all steps of solving the linkage, and then outputting results
-    #will take manual inputs if specified, otherwise uses values from object definition
+    # Method which when called will perform all steps of solving the linkage, and then outputting results
+    # Will take manual inputs if specified, otherwise uses values from object definition
     def solve(self, manual=False) -> None:
         if manual: 
             self.read_user_input()
@@ -399,57 +389,21 @@ class Solver:
 
         self.execute_4bar_calculations()
         self.print_results()
-        pass
-    
-    def testing(self):
-        #These calculations only need to be done once
-        self.find_chebyshev_spacing()
-        self.find_corresponding_y_points()
-        self.linear_mapping_x_to_theta2()
-        self.linear_mapping_y_to_theta4()
-        self.determine_corresponding_angles()
-        self.solve_freudenstein()
-        self.solve_linkage_dimensions()
-        
-        
+        pass       
 
 #####################################################
 ##                Main Execution                    #
 #####################################################
 if __name__ == "__main__":
-    
-    #This one is from the workshop
-    # testSolver = Solver(func="x**(-2)", 
-    #                     x_min=1, x_max=2,
-    #                     theta2_start=7*math.pi/12, theta2_max_rot=math.pi/3,
-    #                     theta4_start=4*math.pi/3, theta4_max_rot=math.pi/2)
-    
+
     # testSolver = Solver(func="sin(x)", 
     #                     x_min=math.pi/4, x_max=3*math.pi/4,
     #                     theta2_start=7*math.pi/12, theta2_max_rot=2*math.pi/3,
     #                     theta4_start=4*math.pi/3, theta4_max_rot=math.pi/3)
     
-    # testSolver = Solver(func="ln(x)/ln(10)", 
-    #                     x_min=1, x_max=2,
-    #                     theta2_start=7*math.pi/12, theta2_max_rot=2*math.pi,
-    #                     theta4_start=4*math.pi/3, theta4_max_rot=math.pi/3)
-    arbitrarySolver = Solver(func="sin(x)", x_min=0.79, x_max=2.36,
-                        theta2_start=7*math.pi/12, theta2_max_rot=math.pi/3,
-                        theta4_start=4*math.pi/3, theta4_max_rot=math.pi/2)
-    arbitrarySolver.testing()
-    
-    
-    # testSolver = Solver(func="1/x", 
-    #                     x_min=1, x_max=2,
-    #                     theta2_start=7*math.pi/12, theta2_max_rot=2/3*math.pi,
-    #                     theta4_start=4*math.pi/3, theta4_max_rot=math.pi/3)
-    
-    # testSolver.solve()
-
-
-    
-    # Examples of input
-    # testSolver = Solver(func="x**(0.5)+9")        # How to enter a function from script - ALWAYS INCLUDE MULTIPLICATION SIGNS
-    
-    
-    # testSolver.solve(manual = True)  # Enter True argument for manual input
+    testSolver = Solver(func="ln(x)/ln(10)", 
+                        x_min=1, x_max=2,
+                        theta2_start=7*math.pi/12, theta2_max_rot=2*math.pi,
+                        theta4_start=4*math.pi/3, theta4_max_rot=math.pi/3)
+    testSolver.solve()
+    pass
