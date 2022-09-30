@@ -15,7 +15,7 @@ class Solver:
     def __init__(self, func="sin(x)", x_min=math.pi/4, x_max=3*math.pi/4,
                     theta2_start=7*math.pi/12, theta2_max_rot=math.pi/2,
                     theta4_start=4*math.pi/3, theta4_max_rot=math.pi/2,
-                    is_silent=True):
+                    is_silent=True, do_optimise=False):
         self.func = parser.parse_expr(func)
         self.x_min = x_min
         self.x_max = x_max
@@ -39,7 +39,7 @@ class Solver:
 
         self.silent_flag = is_silent        # Option for silent execution, true yields limited prints
 
-        self.optimise_results = True        # Option to calculation optimised results, true will optimise
+        self.optimise_results = do_optimise # Option to calculation optimised results, true will optimise
         self.ensure_linkage_validity = True # Option to ensure starting position of linkage is valid
         self.minimum_range = 0              # The minimum range the answers must have to terminate exeuction early
 
