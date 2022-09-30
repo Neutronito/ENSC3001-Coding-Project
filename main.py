@@ -26,8 +26,8 @@ class Solver:
         self.theta4_start   = theta4_start
         self.theta4_max_rot = theta4_max_rot
         
-        self.x_points = [0, 0, 0]        # Array to store precision points found given Chebyshev spacing
-        self.y_points = [0, 0, 0]        # Array to store corresponding y-points from above x-points
+        self.x_points = [0, 0, 0]           # Array to store precision points found given Chebyshev spacing
+        self.y_points = [0, 0, 0]           # Array to store corresponding y-points from above x-points
         
         self.func_theta2 = None
         self.func_theta4 = None
@@ -35,24 +35,20 @@ class Solver:
         self.theta2_vals = [0, 0, 0]
         self.theta4_vals = [0, 0, 0]
         
-        self.fsn_results = [0, 0, 0]     # Array to store 3 freudenstein results, K1, K2 and K3
+        self.fsn_results = [0, 0, 0]        # Array to store 3 freudenstein results, K1, K2 and K3
         
-        self.lengths = [0, 0, 0, 0]      # Array to store solved linkage dimensions
+        self.lengths = [0, 0, 0, 0]         # Array to store solved linkage dimensions
 
-        self.silent_flag = False         # Option for silent execution, true yields no prints
+        self.silent_flag = False            # Option for silent execution, true yields no prints
 
-        self.optimise_results = True    # Option to calculation optimised results, true will optimise
+        self.optimise_results = True        # Option to calculation optimised results, true will optimise
         self.use_grashof_inequality = False # Option to satisfy Grashof inequality when determining lengths   (DO NOT USE)
         self.ensure_linkage_validity = True
-        self.minimum_range = 0           # The minimum range the answers must have to terminate exeuction early
+        self.minimum_range = 0              # The minimum range the answers must have to terminate exeuction early
 
-    #reads input from the user to use as parameters
+    #reads input from the user to use as parameters for calculations and output
     #function blocks until a valid input is given
-    def read_user_input(self):
-        #accept user input through the terminal on the function to use, and the
-        #x bounds of the function
-        #Up to you to figure out how to store the function, and how to pass it to the
-        #next functions
+    def read_user_input(self) -> None:
 
         print("This function accepts the following inputs and uses them to calculate the lengths of the appropriate four bar linkage.")
         print("\n1: \t The function \t\t\t\t\t E.g. 2*x + 3")
@@ -157,7 +153,7 @@ class Solver:
             else:
                 print('Error, your input was not understood. Please try again.\n')
 
-        #request minimum range if optimisation was enabled
+        #request minimum range if optimise results was enabled
         if (self.optimise_results):
             while(True):
                 optimise_option = input("Since you enabled optimised results, please specify a minimum range for the linkage lengths. A higher range can improve execution speed, as the program will terminate as soon as it finds a valid result. Please enter a positive integer to define the miniumum range.\n")
@@ -172,13 +168,12 @@ class Solver:
 
                 except:
                     print("Error, please input only numerical values, as an integer. Do not include any whitespaces.\n")
+
+        pass
                 
 
-    #accepts the function and bounds parameters, executing calculations to determine the corresponding 4bar linkage
-    #returns an integer array, giving the lengths of the linkages
+    #uses the previously set field variables to executing calculations and determine the corresponding 4bar linkage
     def execute_4bar_calculations(self) -> None:
-        #How the parameters are taken depends on how the above function is done
-        #also deal with and report negative error checking
 
         #These calculations only need to be done once
         self.find_chebyshev_spacing()
@@ -337,6 +332,7 @@ class Solver:
             print()
         pass
     
+    # solves the freudenstein equation to determine the 3 K values
     def solve_freudenstein(self) -> None:
         a,b,c = sym.symbols('a, b, c')
         eq1 = sym.Eq(a*sym.cos(self.theta2_vals[0]) + b*sym.cos(self.theta4_vals[0]) + c, sym.cos(self.theta2_vals[0] - self.theta4_vals[0]))
@@ -371,10 +367,7 @@ class Solver:
         pass
     
     #prints out the results of the calculations
-    #takes the integer array of lengths as parameter
     def print_results(self):
-        #print the results out to the terminal
-        #can draw a graph or some other fancy shit too
         
         print("starting angles are:")
         print(math.degrees(self.theta2_start) % 360)
