@@ -396,14 +396,6 @@ class Solver:
 #####################################################
 if __name__ == "__main__":
 
-    # testSolver = Solver(func="sin(x)", 
-    #                     x_min=math.pi/4, x_max=3*math.pi/4,
-    #                     theta2_start=7*math.pi/12, theta2_max_rot=2*math.pi/3,
-    #                     theta4_start=4*math.pi/3, theta4_max_rot=math.pi/3)
-    
-    testSolver = Solver(func="ln(x)/ln(10)", 
-                        x_min=1, x_max=2,
-                        theta2_start=7*math.pi/12, theta2_max_rot=2*math.pi,
-                        theta4_start=4*math.pi/3, theta4_max_rot=math.pi/3)
-    testSolver.solve()
+    testSolver = Solver()
+    testSolver.solve(manual=True)
     pass
