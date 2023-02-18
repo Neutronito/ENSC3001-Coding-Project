@@ -1,5 +1,5 @@
 # ENSC3001-Coding-Project
-Yay happy fun project for ENSC3001 woohoo
+This was a project created for the UWA unit ENSC3001, Mechanisms and Machines. The purpose of this program is to carry out calculations on 4-bar linkages.
 
 # Virtual Environment
 For testing and running the application use the python virtual environment. Please do not push the venv directory or the pycache.
